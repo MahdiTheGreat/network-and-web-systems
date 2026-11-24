@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- this website looks the best with chrome but still works as intended with firefox -->
+<head>
+  <meta charset="UTF-8">
+  <title>Mr. or Ms.?</title>
+</head>
+<body class="genderInf">
+
+  <form class="form" method="get">
+
+    <p class="formText" >Mr. or Ms.?:</p>
+
+    <div class="formRow">
+      <span class="formRowText" id="name"> Name:</span>
+      <input class="formRowTextBox" id=nameBox type="text" name="nameBox" value="" maxlength="255" >
+    </div>
+
+    <div class="formRow">
+      <input class="formRowRadio" id="male" type="radio" name="gender" value="male" /> Male
+    </div>
+
+    <div class="formRow">
+      <input class="formRowRadio" id="female" type="radio" name="gender" value="female" /> Female
+    </div>
+
+    <input class="formButton" id="submit" type="submit" value="Submit" />
+    <input class="formButton" id="save" type="button" value="save" />
+
+  </form>
+
+  <div class="form" >
+    <p class="formText" id="output">Prediction</p>
+    <p class="formText" id="genderOutput"></p>
+    <p class="formText" id="probability"></p>
+    <p class="formText" id="error"></p>
+    <div class="formColumn">
+      <span class="formText" id="savedOutput"></span><br>
+      <input class="formButton" id="clear" type="button" value="clear" />
+    </div>
+  </div>
+
+</body>
+
+<style type="text/css">
+  html{
+    /*max width and height we want all the available vh for the website therefore the tag that is the father of all tags gets all of the
+    view screen*/
+    width: 100vw;
+    height: 100vh;
+    /*use flex to center the main window or body vertically */
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    justify-content: center;
+    /*setting the background image */
+    background-image:url("\Gender_binary.jpg");
+
+
+  }
+  body{
+    /*flex with row direction which contains two columns, one for a form
+    and one for a div. keep in mind that the reason that the form wasn't used
+    for the second column is because it doesn't have submit or radio buttons*/
+    display: flex;
+    flex-direction: row;
+    /*used flex wrap just for backup*/
+    flex-wrap: wrap;
+    /*fit-content for both height and width
+    to make the section or website window as big as needed*/
+    width: fit-content;
+    height: fit-content;
+    /*using justify to put the window in the center as much as possible*/
+    justify-items: center;
+    justify-content: center;
+    /*white background color with opacity of 0.8 for transparency */
+    background-color:skyblue;
+    opacity: 0.8;
+    /*gap, border and padding for better design of window */
+    gap: 10px;
+    border: solid;
+    padding: 10px;
+    /*use of auto margin to vertically center the main window or body*/
+    margin: auto;
+    /*default fontsize of the section is 6vh unless overridden for smaller texts*/
+    font-size: 6vh;
+    /*hidden overflow for getting rid of scrollbars*/
+    overflow: hidden;
+  }
+  #error{
+    /*red background color for error output to make it more visible  */
+    background-color: red;
+    /*display is none to not take unnecessary space*/
+    display: none;
+    /*there are two font sizes that are used, one for smaller texts and
+    one for bigger texts and our error message is one of the smaller texts
+    therefore its size is 3vh. vh is used to make the website more
+    responsive*/
+    font-size: 3vh;
+
+  }
+
+  form{
+    /*flex with column direction which form elements such as button, text and...*/
+    display: flex;
+    flex-direction: column;
+    gap:10px;
+  }
+  .formButton{
+    /* used fit-content to not make the buttons too big*/
+    width: fit-content;
+    font-size: 3vh;
+  }
+  .formRowTextBox{
+    /*specified width to not make the text box too big*/
+    width: 50%;
+    /*had to specify the font size of the text box since it is not
+    effected by the font size of the row block*/
+    font-size: 3vh;
+  }
+
+  .formRow{
+    /*form row block which contains a combination of small texts, regular or radio buttons
+    in a row*/
+    font-size: 3vh;
+  }
+
+  .formRowRadio{
+    /*make the radio buttons more responsive*/
+    width:3vh ;
+    height: 3vh;
+  }
+
+  #savedOutput{
+    /*the height is according to the given design*/
+    height: 10vh;
+    font-size: 6vh;
+
+  }
+
+  #probability{
+    /*element that contains a small text hence the smaller font-size*/
+    font-size: 3vh;
+  }
+
+  #genderOutput{
+    /*element that contains a small text hence the smaller font-size*/
+    font-size: 3vh;
+  }
+  .formColumn{
+    /*display used for the text box and the clear button below it
+    which are in a column*/
+    display: flex;
+    flex-direction: column;
+    /*background color white according to design*/
+    background-color: white;
+    /*min-width to not make it too small*/
+    min-width: 40vh;
+    height: fit-content;
+    /*dotted border according to design*/
+    border-style: dotted;
+    /*padding according to design*/
+    padding-bottom: 1vh;
+  }
+
+
+</style>
+
+
+<script type="text/javascript">
+  "use strict";
+
+  //assigning event handlers
+  //document.querySelector("#submit").onmousedown=fetchGenderOfName;
+  document.querySelector("#save").onmousedown=saveGender;
+  document.querySelector("#clear").onmousedown=clearSavedGender;
+  document.querySelector("form").onsubmit=fetchGenderOfName;
+  //to hold the last submitted name
+  let lastSubmittedname;
+
+  function clearSavedGender(){
+    //clearing data related to the saved gender for the given name in localstorage
+    document.querySelector("#savedOutput").innerText="";
+    //console.log();
+    localStorage.removeItem(lastSubmittedname);
+    //console.log();
+    //localStorage.clear();
+  }
+
+  function fetchGenderOfName(event){
+    //checking the validity of the given name by regex and fetching the data given by the api
+    //and putting it in the appropriate places of the window
+    let apiLink="https://api.genderize.io/?name=";
+    let reg=/^[a-zA-Z ]{1,255}$/;
+    let name=document.querySelector("#nameBox").value;
+    let savedGender=localStorage.getItem(name);
+    //console.log();
+    document.getElementById("savedOutput").innerText=savedGender;
+    //console.log();
+    //a promise chain for first fetching file and seeing if there is a gender for the given name
+    if (reg.test(name)) {
+      let link=apiLink+name
+      fetch(link)
+              .then((resp) =>{
+                if (!resp.ok){
+                  //handling network error
+                  errorDisplayer("error:Network response was not ok");
+                  return null;
+                }
+                else return resp.json();
+              })
+              .then(
+                      (data) => {
+                        document.getElementById("genderOutput").textContent = data['gender'];
+                        document.getElementById("probability").textContent = data['probability'];
+                        //handling error related to no gender being assigned to the given name
+                        if(data['gender']===null)errorDisplayer("error:not a real name");
+                      }
+              );
+      lastSubmittedname=name;
+      //getting back the place allocated for the error output since there was no error
+      document.getElementById("error").style.display="none";
+      //unchecking all the radio buttons to not have the previous gender checks effect the current one
+      //and also allow the user to immediately store the retrieved gender and in case the user knows more
+      //about the gender of the given name, select the gender that it thinks is the correct one.
+      let boxes = document.getElementsByClassName("formRowRadio");
+      for (let i = 0; i < boxes.length; i++) {
+        boxes[i].checked=false
+      }
+    }
+    //error for when the given name is not valid
+    else alert("name is not valid");
+    event.preventDefault();
+  }
+
+  function saveGender() {
+    let boxes = document.getElementsByClassName("formRowRadio");
+    let gender;
+    //checking if a radio button is selected
+    for (let i = 0; i < boxes.length; i++) {
+      if (boxes[i].checked)gender=boxes[i].value
+    }
+    //console.log()
+    let name = document.querySelector("#nameBox").value;
+    //if there is no gender then we store the predicted gender
+    if(gender===undefined ){
+      if (name===lastSubmittedname) gender=document.getElementById("genderOutput").textContent;
+      else {
+        alert("submit or select a gender");
+        return;
+      }
+      }
+    //this both stores the gender of the name and overrides it if the gender of the name is already stored
+    localStorage.setItem(name,gender);
+    //console.log()
+  }
+
+  function errorDisplayer(error){
+    //shows the error output and resets the outputs of the predicted gender and the
+    //probability of that gender since there were for earlier checks
+    document.getElementById("error").style.display="initial";
+    document.getElementById("error").innerText=error;
+    document.getElementById("genderOutput").textContent =null;
+    document.getElementById("probability").textContent = null;
+
+  }
+
+</script>
+
+</html>
