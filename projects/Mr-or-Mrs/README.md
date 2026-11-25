@@ -1,19 +1,88 @@
-# Asynchronous Web Client & Demographic REST API Consumer
+# Mr or Mrs?
 
-A responsive web application interface designed in **HTML5**, **CSS3**, and vanilla **JavaScript (ES6+)** that queries demographic inference REST APIs asynchronously to predict name honorifics, featuring client-side persistence, input validation, and adaptive layout styling.
+One of the most difficult tasks in class, especially online classes, is the correct use of Mr. and Mrs. prefixes. For example, you see Mahdi Afarideh's name in the list and you don't know whether you should say Mr. Afarideh or Mrs. Afarideh. In this project, we plan to design a website that will help teachers in this important matter. 
 
----
+In this site, there are two general situations, one when the user knows the gender of the name and wants to save it on the site and two when the user does not know and wants to find out through our site.
 
-## Technical Features
+In the website a background covers the whole page, and in the middle of it is a transparent rectangle. We are careful so that the transparency is not so high that the text inside the rectangle cannot be read. The middle rectangle contains all your displayable content. This rectangle is only the size of its contents, but to display it more beautifully, we use padding. The content consists of two parts that are placed horizontally next to each other. The first part is a form that consists of two entries. The first entry is in text form and it can be done if one already knows the answer. The second input is in the form of two radio buttons that allow the user to enter the desired name, enter it and this answer is saved for the future. The design spec of this website can be seen below:
 
-### 1. Asynchronous REST Integration & Error Handling
-* **Fetch API & Promises:** Dispatches asynchronous HTTP `GET` requests to demographic REST endpoints (`Genderize.io`), parsing JSON responses containing predicted gender categories, probability confidence scores, and historical sample counts.
-* **Resilient Network Handling:** Catches HTTP network timeouts, API rate limits, and unrecognized query strings, displaying contextual inline alert banners without disrupting page layout.
+![image](assets/image_1.png)
 
-### 2. Client-Side Persistence Layer
-* **HTML5 LocalStorage Caching:** Implements client-side state caching using `localStorage` to save manual overrides or confirmed gender associations per name.
-* **Instant Cache Lookups:** Before dispatching external network requests, the interface automatically checks local storage; if a cached entry exists, it renders immediately, eliminating unnecessary API round-trips.
+and the implementation is shown below:
 
-### 3. Responsive UI & CSS Architecture
-* **Viewport-Adaptive Design:** Styled using CSS Flexbox with responsive viewport units (`vh`, `vw`), ensuring visual consistency across mobile and desktop displays.
-* **Form Validation:** Validates user inputs against regular expressions (`^[a-zA-Z ]{1,255}$`) to sanitize queries, suppressing empty or malformed submissions with `event.preventDefault()`.
+![Screenshot 2023-08-09 at 16-47-12 Mr  or Ms](assets/image_2.png)
+
+After filling out the form, the user clicks on the submit button and his request will be sent. For example below we fill the form with the name Xena:
+
+![Screenshot 2023-08-09 at 15-35-10 Mr  or Ms](assets/image_3.png)
+
+We consider the following in the implementation of the input form:
+
+• The inputed name should have a maximum of 255 characters. 
+• The name entered by the user must consist only of spaces, upper and lowercase English letters.
+• The submit button should not perform the default behavior of the browser.
+
+We use the following website to predict the gender of the given name:
+https://api.genderize.io/?name=Xena
+in the above link, the inputed name is Xena and the request is done as a GET and the inputed name is used as a query string. The output of this request is as follows:
+
+{
+"name":"Xena",
+"gender":"Female",
+"probability":0.96,
+"count":49197
+}
+
+And therefore needs to be converted to an object in javascript. Error is also handled and shown on the website. 
+The error could be because of the inability of the api to guess the gender or connection issues. The output on the website can be seen below:
+
+![Screenshot 2023-08-09 at 15-34-41 Mr  or Ms](assets/image_4.png)
+
+# Saved answers
+
+There are times when the website makes a wrong prediction, in which case you can get the correct answer by asking the student and manually enter the gender for the name, like below:
+
+![Screenshot 2023-08-09 at 15-48-34 Mr  or Ms](assets/image_5.png)
+
+In this case, this website has the ability to store the correct answer. if a stored answer is available for the entered name, the the stored answer is displayed to the user, like below:
+
+![Screenshot 2023-08-09 at 15-35-28 Mr  or Ms](assets/image_6.png)
+
+If a gender has been already stored for a name and the user gives another gender, the previous value will be deleted, like below:
+
+![Screenshot 2023-08-09 at 15-50-31 Mr  or Ms](assets/image_7.png)
+
+As we can see below, the stored answer has changed to male.
+
+![Screenshot 2023-08-09 at 15-50-42 Mr  or Ms](assets/image_8.png)
+
+If the user wants to delete the saved value for a name, after sending a request for that name, he can use the delete button that is displayed in the saved answers section. Notice that the saved answers section will only be displayed if there is a saved answer.
+
+# step by step
+
+We want to review the procedure of working with this website step by step. In this section:
+
+scenario one:
+1. The user wants to find the gender of the name "Xena".
+2. The user enters the name "Xena" in the specified field and prediction is done.
+3. The prediction result will be displayed to him and he can save it if necessary
+
+scenario two:
+1. The user wants to find the gender of the name "Xena", but predicts that this name is male.
+2. The user enters the name "Xena" in the specified field and prediction is done.
+3. The prediction result is displayed to the user, but the user prefers to use his knowledge and save the male gender for this name.
+   
+scenario three:
+1. The user wants to find the gender of the name "Xena", but he already entered this name and saved the result.
+2. The user enters the name "Xena" in the specified field and prediction is done.
+3. The prediction result is displayed to the user, next to it it is stated that the result is already saved for this name.
+4. The user can change the saved result or delete it.
+
+
+
+
+
+
+
+
+
